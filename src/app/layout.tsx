@@ -14,8 +14,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="container m-4">
-        <AuthProvider>{children}</AuthProvider>
+      <body className="w-screen">
+        <div className="container sm:m-0 sm:p-0 md:mx-auto md:m-2.5 md:p-1">
+          <AuthProvider>{children}</AuthProvider>
+        </div>
       </body>
     </html>
   );

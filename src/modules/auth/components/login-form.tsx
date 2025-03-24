@@ -4,12 +4,19 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { login } from "../services/auth.service";
-import FormControl from "@/modules/shared/form-control";
 import { useState } from "react";
+import AppIcon from "@/modules/shared/app-icon";
+import { TextBox } from "@/modules/shared/text-box";
+import Button from "@/modules/shared/button";
+import FormControl from "@/modules/shared/form-control";
 
 type LoginFormInputs = {
   username: string;
   password: string;
+};
+type FormSummary = {
+  message: string;
+  status: "error" | "success";
 };
 const schema = yup.object().shape({
   username: yup.string().required("Username is required"),
@@ -20,7 +27,7 @@ const schema = yup.object().shape({
 });
 
 export default function LoginForm() {
-  const [formSummary, setFormSummary] = useState<string>();
+  const [formSummary, setFormSummary] = useState<FormSummary>();
   const {
     register,
     handleSubmit,
@@ -31,30 +38,43 @@ export default function LoginForm() {
   const onSubmit: SubmitHandler<LoginFormInputs> = async (formData) => {
     try {
       const { data } = await login(formData);
-      setFormSummary(data.message);
+      setFormSummary({
+        message: data.message,
+        status: "success",
+      });
     } catch (error: any) {
-      setFormSummary(error.message);
+      setFormSummary({
+        message: error.message,
+        status: "error",
+      });
     }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h1>Login</h1>
-      {formSummary && <p>{formSummary}</p>}
+      <AppIcon />
+      {formSummary && (
+        <p className={formSummary ? `text-red-500` : `text-green-500`}>
+          {formSummary.message}
+        </p>
+      )}
+      <TextBox
+        label="Username"
+        {...register("username")}
+        type="text"
+        placeholder="Enter your username"
+        error={errors.username}
+      />
+      <TextBox
+        label="Password"
+        {...register("password")}
+        placeholder="Enter your password"
+        type="password"
+        error={errors.password}
+      />
       <FormControl>
-        <label>Username:</label>
-        <input {...register("username")} type="email" />
-        {errors.username && <span>{errors.username.message}</span>}
-      </FormControl>
-      <FormControl>
-        <label>Password</label>
-        <input {...register("password")} type="password" />
-        {errors.password && <span>{errors.password.message}</span>}
-      </FormControl>
-      <FormControl>
-        <input
-          type="submit"
-          value={isSubmitting ? "Submitting..." : "Submit"}
-        />
+        <Button variant="primary" type="submit" disabled={isSubmitting}>
+          Login
+        </Button>
       </FormControl>
     </form>
   );

@@ -9,7 +9,6 @@ import { decodeJwt } from "jose";
 export async function decrypt(token: string | undefined = "") {
   try {
     const decoded = decodeJwt(token);
-    console.log(decoded);
     // const { payload } = await jwtVerify<AuthTokenPayload>(token, encodedKey, {
     //   algorithms: ["HS256"],
     // });

@@ -5,10 +5,9 @@ export default function AuthLayout({
 }) {
   return (
     <div>
-      <header>
-        <h1>Authentication layout</h1>
-      </header>
-      <main>{children}</main>
+      <main className="form-container sm:min-w-min md:max-w-1/4 min-h-5">
+        {children}
+      </main>
     </div>
   );
 }

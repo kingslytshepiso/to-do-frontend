@@ -4,6 +4,6 @@ export default function FormControl({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex m-t w-min flex-col justify-center">{children}</div>
+    <div className="flex m-t min-w-max flex-col justify-center">{children}</div>
   );
 }
