@@ -1,13 +1,13 @@
-export default function DashboardLayout({
+import Header from "@/modules/shared/components/header";
+
+export default function Authorisedlayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <header>
-        <h1>Dashboard layout</h1>
-      </header>
+      <Header />
       <main>{children}</main>
     </div>
   );

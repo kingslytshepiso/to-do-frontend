@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/hooks/auth-context";
+import { AuthProvider } from "@/modules/auth/hooks/auth-context";
+import { NotificationProvider } from "@/modules/shared/hooks/notification-context";
+import Notification from "@/modules/shared/components/notification";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +18,12 @@ export default function RootLayout({
     <html lang="en">
       <body className="w-screen">
         <div className="container sm:m-0 sm:p-0 md:mx-auto md:m-2.5 md:p-1">
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              {children}
+              <Notification />
+            </NotificationProvider>
+          </AuthProvider>
         </div>
       </body>
     </html>

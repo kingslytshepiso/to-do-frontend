@@ -8,6 +8,7 @@ export default interface AuthResponse {
   message: string;
   userId: string;
   email: string;
+  fullName: string;
   roles: Role[];
   authStatus: AuthStatus;
 }
