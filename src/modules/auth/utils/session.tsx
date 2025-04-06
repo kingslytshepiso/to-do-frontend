@@ -10,6 +10,7 @@ import isTokenExpired from "./is-token-expired";
 export async function decrypt(token: string | undefined = "") {
   try {
     const isExpired = await isTokenExpired();
+    console.log({ isExpired });
     if (isExpired) return null;
     const decoded = decodeJwt(token);
     // const { payload } = await jwtVerify<AuthTokenPayload>(token, encodedKey, {

@@ -8,9 +8,11 @@ type FormSummary = {
   status: "error" | "success" | "info";
 };
 type GoogleLoginButtonProps = {
+  type: "register" | "login";
   onFinish: (result: FormSummary) => void;
 };
-export default function GoogleLoginButton({
+export default function GoogleAuthButton({
+  type: title,
   onFinish,
 }: GoogleLoginButtonProps) {
   const { federatedLogin } = useAuth();
@@ -35,10 +37,11 @@ export default function GoogleLoginButton({
   return (
     <div className="m-2.5">
       <div className="my-2.5 flex justify-center">
-        <span className="text-center">Or login with</span>
+        <span className="text-center">Or {title} with</span>
       </div>
       <div className="my-2.5">
         <GoogleLogin
+          text={title == "login" ? "signin_with" : "signup_with"}
           onSuccess={handleLogin}
           onError={() => {
             console.log("Login Failed");

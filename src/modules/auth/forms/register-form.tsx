@@ -1,47 +1,57 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { SubmitHandler, useForm } from "react-hook-form";
-import * as yup from "yup";
-import { useEffect, useState } from "react";
-import AppIcon from "@/modules/shared/components/app-icon";
-import { TextBox } from "@/modules/shared/components/forms/text-box";
-import Button from "@/modules/shared/components/button";
-import FormControl from "@/modules/shared/components/forms/form-control";
 import { useNotification } from "@/modules/shared/hooks/notification-context";
 import { useRouter } from "next/navigation";
-import { LoginInput } from "../types/login-input";
+import { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import * as yup from "yup";
+import RegisterInput from "../types/register-input";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "../hooks/auth-context";
+import AppIcon from "@/modules/shared/components/app-icon";
+import { TextBox } from "@/modules/shared/components/forms/text-box";
+import FormControl from "@/modules/shared/components/forms/form-control";
+import Button from "@/modules/shared/components/button";
 import GoogleAuthButton from "../components/google-auth-button";
 
 type FormSummary = {
   message: string;
   status: "error" | "success" | "info";
 };
+
 const schema = yup.object().shape({
+  firstName: yup.string().required("First name is required"),
+  lastName: yup.string().required("Last name is required"),
   username: yup.string().required("Username is required"),
   password: yup
     .string()
     .min(8, "Password must be at least 8 characters")
     .required("Password is required"),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password"), ""], "Passwords must match")
+    .required("Confirm Password is required"),
+  autoLogin: yup.boolean().optional(),
 });
-
-export default function LoginForm() {
+export default function RegisterForm() {
   const [formSummary, setFormSummary] = useState<FormSummary>();
   const router = useRouter();
+  const { register: signUp } = useAuth();
   const { addNotification } = useNotification();
   const {
     register,
     handleSubmit,
     formState: { isSubmitting, errors },
-  } = useForm<LoginInput>({
+  } = useForm<RegisterInput>({
     resolver: yupResolver(schema),
+    defaultValues: {
+      autoLogin: true,
+    },
   });
-  const { login } = useAuth();
-  const onSubmit: SubmitHandler<LoginInput> = async (formData) => {
+  const onSubmit: SubmitHandler<RegisterInput> = async (formData) => {
     try {
-      const response = await login(formData);
+      const response = await signUp(formData);
       if (response) {
         setFormSummary({
           message: response.message,
@@ -76,25 +86,47 @@ export default function LoginForm() {
         <AppIcon size={200} />
       </div>
       <TextBox
+        label="First name"
+        {...register("firstName")}
+        type="text"
+        placeholder="Enter your first name."
+        error={errors.firstName}
+      />
+      <TextBox
+        label="Last name"
+        {...register("lastName")}
+        type="text"
+        placeholder="Enter your last name."
+        error={errors.lastName}
+      />
+      <TextBox
         label="Username"
         {...register("username")}
         type="text"
-        placeholder="Enter your username"
+        placeholder="Enter your username."
         error={errors.username}
       />
+      <input {...register("autoLogin")} type="hidden" />
       <TextBox
         label="Password"
         {...register("password")}
-        placeholder="Enter your password"
+        placeholder="Enter your password."
         type="password"
         error={errors.password}
       />
+      <TextBox
+        label="Confirm password"
+        {...register("confirmPassword")}
+        placeholder="Confirm your password."
+        type="password"
+        error={errors.confirmPassword}
+      />
       <FormControl>
         <Button variant="primary" type="submit" disabled={isSubmitting}>
-          Login
+          Register
         </Button>
       </FormControl>
-      <GoogleAuthButton type="login" onFinish={postFederatedLogin} />
+      <GoogleAuthButton type="register" onFinish={postFederatedLogin} />
     </form>
   );
 }

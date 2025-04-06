@@ -25,7 +25,7 @@ export default function RootLayout({
           defer
         ></script>
       </head>
-      <body className="w-screen">
+      <body>
         <div className="container sm:m-1.5 sm:p-1 md:mx-auto md:m-2.5 md:p-1">
           <AuthProvider>
             <GoogleOAuthProvider
@@ -37,7 +37,6 @@ export default function RootLayout({
                 <Notification />
               </NotificationProvider>
             </GoogleOAuthProvider>
-            ;
           </AuthProvider>
         </div>
       </body>

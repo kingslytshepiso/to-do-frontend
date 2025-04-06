@@ -1,7 +1,5 @@
+import RegisterForm from "@/modules/auth/forms/register-form";
+
 export default function SignUp() {
-  return (
-    <div>
-      <h1>Sign Up page</h1>
-    </div>
-  );
+  return <RegisterForm />;
 }

@@ -3,7 +3,10 @@
 import AppIcon from "./app-icon";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+  faRightToBracket,
+  faUserPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import LinkButton from "./link-button";
 import LogoutButton from "@/modules/auth/components/logout-button";
 import { useAuth } from "@/modules/auth/hooks/auth-context";
@@ -22,13 +25,22 @@ export default function Header() {
           {user?.authenticated ? (
             <LogoutButton />
           ) : (
-            <LinkButton variant="secondary" href={"/auth/login"}>
-              <FontAwesomeIcon
-                className="mr-0 sm:mr-2 md:mr-2"
-                icon={faRightToBracket}
-              />
-              <span className="hidden md:inline sm:inline">Login</span>
-            </LinkButton>
+            <div className="flex flex-row gap-2">
+              <LinkButton variant="secondary" href={"/auth/login"}>
+                <FontAwesomeIcon
+                  className="mr-0 sm:mr-2 md:mr-2"
+                  icon={faRightToBracket}
+                />
+                <span className="hidden md:inline sm:inline">Login</span>
+              </LinkButton>
+              <LinkButton variant="primary" href={"/auth/signup"}>
+                <FontAwesomeIcon
+                  className="mr-0 sm:mr-2 md:mr-2"
+                  icon={faUserPlus}
+                />
+                <span className="hidden md:inline sm:inline">Sign up</span>
+              </LinkButton>
+            </div>
           )}
         </div>
       </nav>

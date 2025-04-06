@@ -2,10 +2,16 @@ import api from "@/modules/shared/utils/api";
 import AuthResponse from "../dto/auth-response.dto";
 import { LoginInput } from "../types/login-input";
 import Oauth2LoginInput from "../types/oauth2-login-input";
+import RegisterInput from "../types/register-input";
 
 export async function me(): Promise<AuthResponse> {
   return api.post("/auth/me");
 }
+
+export async function register(data: RegisterInput) {
+  return api.post<AuthResponse>("/auth/signUp", data);
+}
+
 export async function login(data: LoginInput) {
   return api.post<AuthResponse>("/auth/signIn", data);
 }
