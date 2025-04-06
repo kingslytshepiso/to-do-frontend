@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/modules/auth/hooks/auth-context";
 import { NotificationProvider } from "@/modules/shared/hooks/notification-context";
 import Notification from "@/modules/shared/components/notification";
+import Header from "@/modules/shared/components/header";
+import { AuthProvider } from "@/modules/auth/hooks/auth-context";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,13 +18,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          src="https://accounts.google.com/gsi/client"
+          async
+          defer
+        ></script>
+      </head>
       <body className="w-screen">
-        <div className="container sm:m-0 sm:p-0 md:mx-auto md:m-2.5 md:p-1">
+        <div className="container sm:m-1.5 sm:p-1 md:mx-auto md:m-2.5 md:p-1">
           <AuthProvider>
-            <NotificationProvider>
-              {children}
-              <Notification />
-            </NotificationProvider>
+            <GoogleOAuthProvider
+              clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}
+            >
+              <NotificationProvider>
+                <Header />
+                {children}
+                <Notification />
+              </NotificationProvider>
+            </GoogleOAuthProvider>
+            ;
           </AuthProvider>
         </div>
       </body>

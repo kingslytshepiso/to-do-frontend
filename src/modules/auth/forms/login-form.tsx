@@ -13,6 +13,7 @@ import { useNotification } from "@/modules/shared/hooks/notification-context";
 import { useRouter } from "next/navigation";
 import { LoginInput } from "../types/login-input";
 import { useAuth } from "../hooks/auth-context";
+import GoogleLoginButton from "../components/google-login-button";
 
 type FormSummary = {
   message: string;
@@ -28,10 +29,8 @@ const schema = yup.object().shape({
 
 export default function LoginForm() {
   const [formSummary, setFormSummary] = useState<FormSummary>();
-
+  const router = useRouter();
   const { addNotification } = useNotification();
-  const { login } = useAuth();
-
   const {
     register,
     handleSubmit,
@@ -39,22 +38,31 @@ export default function LoginForm() {
   } = useForm<LoginInput>({
     resolver: yupResolver(schema),
   });
-  const router = useRouter();
+  const { login } = useAuth();
   const onSubmit: SubmitHandler<LoginInput> = async (formData) => {
     try {
       const response = await login(formData);
+      console.log({ response });
       if (response) {
         setFormSummary({
           message: response.message,
           status: "success",
         });
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (error: any) {
       setFormSummary({
         message: error.response?.data?.message ?? error.message,
         status: "error",
       });
+    }
+  };
+  const postFederatedLogin = (result: FormSummary) => {
+    if (result.status == "error") {
+      addNotification(result.message, result.status);
+    } else {
+      addNotification(result.message, result.status);
+      router.push("/");
     }
   };
   useEffect(
@@ -65,7 +73,9 @@ export default function LoginForm() {
   );
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <AppIcon size={200} />
+      <div className="w-full flex flex-row justify-center">
+        <AppIcon size={200} />
+      </div>
       <TextBox
         label="Username"
         {...register("username")}
@@ -85,6 +95,7 @@ export default function LoginForm() {
           Login
         </Button>
       </FormControl>
+      <GoogleLoginButton onFinish={postFederatedLogin} />
     </form>
   );
 }

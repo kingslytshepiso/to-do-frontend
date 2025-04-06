@@ -6,40 +6,55 @@ import { AuthStatus } from "@/modules/auth/entities/auth-status.enum";
 import api from "@/modules/shared/utils/api";
 import { createContext, useContext, useEffect, useState } from "react";
 import { LoginInput } from "../types/login-input";
-import { login } from "../services/auth.service";
+import { login, logout, oauth2Login } from "../services/auth.service";
+import Oauth2LoginInput from "../types/oauth2-login-input";
 
 type User = {
   id: string;
   name: string;
   email: string;
+  authenticated: boolean;
 } | null;
 
 type AuthContextType = {
   user: User;
   loading: boolean;
-  isAuthenticated: boolean;
   login: (data: LoginInput) => Promise<AuthResponse | undefined>;
+  federatedLogin: (data: Oauth2LoginInput) => Promise<AuthResponse | undefined>;
   logout: () => void;
 };
 const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
-  const [authenicated, setAuthenticated] = useState(false);
 
   const handleLogin = async (input: LoginInput) => {
     const { data } = await login(input);
-    setUser({
-      email: data.email,
-      id: data.userId,
-      name: data.fullName,
-    });
-    if (data.authStatus == AuthStatus.AUTHENTICATED) setAuthenticated(true);
+    if (data.authStatus == AuthStatus.AUTHENTICATED) {
+      setUser({
+        id: data.userId,
+        name: data.email,
+        email: data.email,
+        authenticated: true,
+      });
+    }
+    return data;
+  };
+  const handleFederatedLogin = async (input: Oauth2LoginInput) => {
+    const { data } = await oauth2Login(input);
+    if (data.authStatus == AuthStatus.AUTHENTICATED) {
+      setUser({
+        id: data.userId,
+        name: data.email,
+        email: data.email,
+        authenticated: true,
+      });
+    }
     return data;
   };
 
   const handleLogout = async () => {
-    await api.post("/auth/logout");
+    await logout();
     setUser(null);
   };
 
@@ -52,6 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             id: data.userId,
             name: data.email,
             email: data.email,
+            authenticated: true,
           });
         }
       } catch (error) {
@@ -69,8 +85,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         user,
         loading,
-        isAuthenticated: authenicated,
         login: handleLogin,
+        federatedLogin: handleFederatedLogin,
         logout: handleLogout,
       }}
     >

@@ -8,8 +8,8 @@ export default function AppIcon({
   size?: number;
 }) {
   return (
-    <div className={`w-full flex flex-row justify-center ${containerStyle}`}>
-      <Image alt="logo" src="/logo.svg" width={size} height={size} />
+    <div className={containerStyle}>
+      <Image alt="logo" src="/logo.svg" width={size} height={size} priority />
     </div>
   );
 }
