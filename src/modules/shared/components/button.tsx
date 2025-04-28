@@ -8,7 +8,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export default function Button({
   variant = "primary",
   className = "",
-  wrapperClasses,
+  wrapperClasses = "",
   ...props
 }: ButtonProps) {
   const baseStyles =
@@ -16,10 +16,10 @@ export default function Button({
   const variantStyles =
     variant === "primary"
       ? "bg-[var(--button-primary-background)] text-[var(--button-primary-foreground)] hover:bg-[var(--button-primary-background-accent)] focus:ring-[var(--button-primary-border)]"
-      : "bg-[var(--button-secondary-background)] text-[var(--button-secondary-foreground)] hover:bg-[var(--button-secondary-background-accent)] focus:ring-[var(--button-secondary-border)]";
+      : "bg-[var(--button-secondary-background)] text-[var(--button-secondary-foreground)] hover:bg-[var(--button-secondary-background-accent)] focus:ring-[var(--button-secondary-border)] hover:text-[var(--button-secondary-background)]";
 
   return (
-    <div className={`flex grow shrink m-2 ${wrapperClasses}`}>
+    <div className={`flex grow shrink ${wrapperClasses}`}>
       <button
         className={`min-w-full ${baseStyles} ${variantStyles} ${className}`}
         {...props}

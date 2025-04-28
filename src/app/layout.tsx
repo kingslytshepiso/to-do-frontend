@@ -3,8 +3,8 @@ import "./globals.css";
 import { NotificationProvider } from "@/modules/shared/hooks/notification-context";
 import Notification from "@/modules/shared/components/notification";
 import Header from "@/modules/shared/components/header";
-import { AuthProvider } from "@/modules/auth/hooks/auth-context";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { AuthProvider } from "@/modules/auth/hooks/auth-context";
 
 export const metadata: Metadata = {
   title: "Create Next App",

@@ -9,6 +9,7 @@ import { LoginInput } from "../types/login-input";
 import { login, logout, oauth2Login, register } from "../services/auth.service";
 import Oauth2LoginInput from "../types/oauth2-login-input";
 import RegisterInput from "../types/register-input";
+import { StorageUtils } from "../utils/storage";
 
 type User = {
   id: string;
@@ -27,41 +28,47 @@ type AuthContextType = {
 };
 const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   const handleRegister = async (input: RegisterInput) => {
     const { data } = await register(input);
-    setUser({
+    const newUser = {
       id: data.userId,
       name: data.email,
       email: data.email,
       authenticated: true,
-    });
+    };
+    setUser(newUser);
+    StorageUtils.setItem("user", newUser);
     return data;
   };
 
   const handleLogin = async (input: LoginInput) => {
     const { data } = await login(input);
     if (data.authStatus == AuthStatus.AUTHENTICATED) {
-      setUser({
+      const newUser = {
         id: data.userId,
         name: data.email,
         email: data.email,
         authenticated: true,
-      });
+      };
+      setUser(newUser);
+      StorageUtils.setItem("user", newUser);
     }
     return data;
   };
   const handleFederatedLogin = async (input: Oauth2LoginInput) => {
     const { data } = await oauth2Login(input);
     if (data.authStatus == AuthStatus.AUTHENTICATED) {
-      setUser({
+      const newUser = {
         id: data.userId,
         name: data.email,
         email: data.email,
         authenticated: true,
-      });
+      };
+      setUser(newUser);
+      StorageUtils.setItem("user", newUser);
     }
     return data;
   };
@@ -69,6 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const handleLogout = async () => {
     await logout();
     setUser(null);
+    StorageUtils.removeItem("user");
   };
 
   useEffect(() => {
@@ -76,15 +84,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const { data } = await api.post<AuthResponse>("/auth/me");
         if (data.authStatus == AuthStatus.AUTHENTICATED) {
-          setUser({
+          const newUser = {
             id: data.userId,
             name: data.email,
             email: data.email,
             authenticated: true,
-          });
+          };
+          setUser(newUser);
+          StorageUtils.setItem("user", newUser);
         }
       } catch (error) {
         setUser(null);
+        StorageUtils.removeItem("user");
       } finally {
         setLoading(false);
       }

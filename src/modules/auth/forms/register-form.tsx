@@ -23,7 +23,7 @@ type FormSummary = {
 const schema = yup.object().shape({
   firstName: yup.string().required("First name is required"),
   lastName: yup.string().required("Last name is required"),
-  username: yup.string().required("Username is required"),
+  username: yup.string().required("Email is required"),
   password: yup
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -100,10 +100,10 @@ export default function RegisterForm() {
         error={errors.lastName}
       />
       <TextBox
-        label="Username"
+        label="Email"
         {...register("username")}
         type="text"
-        placeholder="Enter your username."
+        placeholder="Enter your email."
         error={errors.username}
       />
       <input {...register("autoLogin")} type="hidden" />

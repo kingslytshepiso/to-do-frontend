@@ -17,7 +17,7 @@ export default function LogoutButton() {
   const showDialog = () => setDialogOpen(true);
   const hideDialog = () => setDialogOpen(false);
   return (
-    <div>
+    <div className="px-4 py-2">
       <Button onClick={showDialog}>
         <FontAwesomeIcon
           className="mr-0 sm:mr-2 md:mr-2"
@@ -25,12 +25,8 @@ export default function LogoutButton() {
         />
         <span className="hidden md:inline sm:inline">Logout</span>
       </Button>
-      <ConfirmDialog
-        isOpen={dialogOpen}
-        onClose={handleLogout}
-        title="Animated Dialog"
-      >
-        <p>This modal has smooth animations using Framer Motion.</p>
+      <ConfirmDialog isOpen={dialogOpen} onClose={handleLogout} title="Confirm">
+        <p>Do you wish to continue?</p>
       </ConfirmDialog>
     </div>
   );
