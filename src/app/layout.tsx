@@ -1,10 +1,12 @@
+import { AuthProvider } from "@/modules/auth/hooks/auth-context";
+import GlobalLoading from "@/modules/shared/components/global-loading";
+import Header from "@/modules/shared/components/header";
+import Notification from "@/modules/shared/components/notification";
+import { LoadingProvider } from "@/modules/shared/hooks/loading-context";
+import { NotificationProvider } from "@/modules/shared/hooks/notification-context";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import type { Metadata } from "next";
 import "./globals.css";
-import { NotificationProvider } from "@/modules/shared/hooks/notification-context";
-import Notification from "@/modules/shared/components/notification";
-import Header from "@/modules/shared/components/header";
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import { AuthProvider } from "@/modules/auth/hooks/auth-context";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,17 +29,20 @@ export default function RootLayout({
       </head>
       <body>
         <div className="container sm:m-1.5 sm:p-1 md:mx-auto md:m-2.5 md:p-1">
-          <AuthProvider>
-            <GoogleOAuthProvider
-              clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}
-            >
-              <NotificationProvider>
-                <Header />
-                {children}
-                <Notification />
-              </NotificationProvider>
-            </GoogleOAuthProvider>
-          </AuthProvider>
+          <LoadingProvider>
+            <AuthProvider>
+              <GoogleOAuthProvider
+                clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}
+              >
+                <NotificationProvider>
+                  <Header />
+                  {children}
+                  <Notification />
+                  <GlobalLoading />
+                </NotificationProvider>
+              </GoogleOAuthProvider>
+            </AuthProvider>
+          </LoadingProvider>
         </div>
       </body>
     </html>

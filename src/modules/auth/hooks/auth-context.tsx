@@ -5,8 +5,8 @@ import AuthResponse from "@/modules/auth/dto/auth-response.dto";
 import { AuthStatus } from "@/modules/auth/entities/auth-status.enum";
 import api from "@/modules/shared/utils/api";
 import { createContext, useContext, useEffect, useState } from "react";
-import { LoginInput } from "../types/login-input";
 import { login, logout, oauth2Login, register } from "../services/auth.service";
+import { LoginInput } from "../types/login-input";
 import Oauth2LoginInput from "../types/oauth2-login-input";
 import RegisterInput from "../types/register-input";
 import { StorageUtils } from "../utils/storage";
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data } = await register(input);
     const newUser = {
       id: data.userId,
-      name: data.email,
+      name: data.fullName || data.email, // Use fullName if available, fallback to email
       email: data.email,
       authenticated: true,
     };
@@ -46,10 +46,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogin = async (input: LoginInput) => {
     const { data } = await login(input);
-    if (data.authStatus == AuthStatus.AUTHENTICATED) {
+    if (data.authStatus === AuthStatus.AUTHENTICATED) {
       const newUser = {
         id: data.userId,
-        name: data.email,
+        name: data.fullName || data.email, // Use fullName if available, fallback to email
         email: data.email,
         authenticated: true,
       };
@@ -60,10 +60,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
   const handleFederatedLogin = async (input: Oauth2LoginInput) => {
     const { data } = await oauth2Login(input);
-    if (data.authStatus == AuthStatus.AUTHENTICATED) {
+    if (data.authStatus === AuthStatus.AUTHENTICATED) {
       const newUser = {
         id: data.userId,
-        name: data.email,
+        name: data.fullName || data.email, // Use fullName if available, fallback to email
         email: data.email,
         authenticated: true,
       };
@@ -83,17 +83,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchUser = async () => {
       try {
         const { data } = await api.post<AuthResponse>("/auth/me");
-        if (data.authStatus == AuthStatus.AUTHENTICATED) {
+
+        // Handle the response based on auth status
+        if (data.authStatus === AuthStatus.AUTHENTICATED) {
+          // User is authenticated (tokens may have been automatically refreshed)
           const newUser = {
             id: data.userId,
-            name: data.email,
+            name: data.fullName || data.email, // Use fullName if available, fallback to email
             email: data.email,
             authenticated: true,
           };
           setUser(newUser);
           StorageUtils.setItem("user", newUser);
+          console.log("User authenticated:", data.message);
+        } else {
+          // User is not authenticated (backend cleared cookies automatically)
+          setUser(null);
+          StorageUtils.removeItem("user");
+          console.log("User not authenticated:", data.message);
         }
-      } catch (error) {
+      } catch (error: unknown) {
+        // Network error or unexpected error
+        console.error("Error fetching user:", error);
         setUser(null);
         StorageUtils.removeItem("user");
       } finally {
