@@ -5,13 +5,13 @@ import AppIcon from "@/modules/shared/components/app-icon";
 import FormControl from "@/modules/shared/components/forms/form-control";
 import { TextBox } from "@/modules/shared/components/forms/text-box";
 import LoadingButton from "@/modules/shared/components/loading-button";
-import { useLoading } from "@/modules/shared/hooks/loading-context";
 import { useNotification } from "@/modules/shared/hooks/notification-context";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
+import AuthErrorDisplay from "../components/auth-error-display";
 import GoogleAuthButton from "../components/google-auth-button";
 import { useAuth } from "../hooks/auth-context";
 import { LoginInput } from "../types/login-input";
@@ -20,6 +20,7 @@ type FormSummary = {
   message: string;
   status: "error" | "success" | "info";
 };
+
 const schema = yup.object().shape({
   username: yup.string().required("Username is required"),
   password: yup
@@ -29,10 +30,10 @@ const schema = yup.object().shape({
 });
 
 export default function LoginForm() {
-  const [formSummary, setFormSummary] = useState<FormSummary>();
   const router = useRouter();
   const { addNotification } = useNotification();
-  const { startLoading, stopLoading } = useLoading();
+  const { login, error, clearError } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -40,35 +41,23 @@ export default function LoginForm() {
   } = useForm<LoginInput>({
     resolver: yupResolver(schema),
   });
-  const { login } = useAuth();
 
   const onSubmit: SubmitHandler<LoginInput> = async (formData) => {
-    const loadingId = "login-form";
-    startLoading(loadingId, "Logging in...");
-
     try {
       const response = await login(formData);
-      if (response) {
-        setFormSummary({
-          message: response.message,
-          status: "success",
-        });
+      if (response && response.authStatus === "AUTHENTICATED") {
+        addNotification("Login successful! Redirecting...", "success");
         router.push("/");
       }
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An error occurred";
-      setFormSummary({
-        message: errorMessage,
-        status: "error",
-      });
-    } finally {
-      stopLoading(loadingId);
+    } catch (error) {
+      // Error is already handled by the auth context
+      // Just show a generic notification
+      addNotification("Login failed. Please try again.", "error");
     }
   };
 
   const postFederatedLogin = (result: FormSummary) => {
-    if (result.status == "error") {
+    if (result.status === "error") {
       addNotification(result.message, result.status);
     } else {
       addNotification(result.message, result.status);
@@ -76,18 +65,20 @@ export default function LoginForm() {
     }
   };
 
-  useEffect(
-    function updateNotification() {
-      if (formSummary) addNotification(formSummary.message, formSummary.status);
-    },
-    [formSummary]
-  );
+  // Clear auth errors when form is submitted
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="w-full flex flex-row justify-center">
         <AppIcon size={200} />
       </div>
+
+      {/* Display auth errors */}
+      <AuthErrorDisplay />
+
       <TextBox
         label="Username"
         {...register("username")}

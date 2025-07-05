@@ -1,3 +1,4 @@
+import { AuthNotificationsWrapper } from "@/modules/auth/components/auth-notifications-wrapper";
 import { AuthProvider } from "@/modules/auth/hooks/auth-context";
 import GlobalLoading from "@/modules/shared/components/global-loading";
 import Header from "@/modules/shared/components/header";
@@ -35,10 +36,12 @@ export default function RootLayout({
                 clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}
               >
                 <NotificationProvider>
-                  <Header />
-                  {children}
-                  <Notification />
-                  <GlobalLoading />
+                  <AuthNotificationsWrapper>
+                    <Header />
+                    {children}
+                    <Notification />
+                    <GlobalLoading />
+                  </AuthNotificationsWrapper>
                 </NotificationProvider>
               </GoogleOAuthProvider>
             </AuthProvider>
